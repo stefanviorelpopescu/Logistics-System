@@ -46,6 +46,11 @@ public class DeliveryController
         return deliveryservice.newDay();
     }
 
+    @PostMapping("/cancel")
+    public int handleCancelOrders(@RequestBody List<Long> ids) {
+        return deliveryservice.cancelOrders(ids);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ InvalidDeliveryPayloadException.class , ConstraintViolationException.class})
     public String handleInvalidDeliveryPayloadException(Exception ex) {

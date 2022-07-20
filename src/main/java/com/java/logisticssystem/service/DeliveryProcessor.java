@@ -30,8 +30,9 @@ public class DeliveryProcessor
     @Async
     public void submitNewTask(Destination destination, List<Delivery> deliveries)
     {
-        logger.info("Starting deliveries for " + destination.getName() + " at distance " + destination.getDistance() + " on thread " + Thread.currentThread().getName());
-        deliveries.forEach(delivery -> changeDeliveryStatus(delivery, DELIVERING));
+        int deliveringCount = deliveryRepository.changeDeliveriesStatus(deliveries, DELIVERING);
+        logger.info("Starting " + deliveringCount + " deliveries for " + destination.getName() + " at distance " + destination.getDistance() + " on thread " + Thread.currentThread().getName());
+
         try
         {
             Thread.sleep(destination.getDistance() * 200);
@@ -39,15 +40,9 @@ public class DeliveryProcessor
         {
             e.printStackTrace();
         }
-        deliveries.forEach(delivery -> changeDeliveryStatus(delivery, DELIVERED));
-        int newProfit = deliveries.size();
-        ApplicationGlobalData.companyProfit.addAndGet(newProfit);
-        logger.info("Finished deliveries for " + destination.getName() + " at distance " + destination.getDistance() + " on thread " + Thread.currentThread().getName());
+        int deliveredCount = deliveryRepository.changeDeliveriesStatus(deliveries, DELIVERED);
+        ApplicationGlobalData.companyProfit.addAndGet(deliveredCount);
+        logger.info("Finished " + deliveredCount + " deliveries for " + destination.getName() + " at distance " + destination.getDistance() + " on thread " + Thread.currentThread().getName());
     }
 
-    private void changeDeliveryStatus(Delivery delivery, OrderStatus delivering)
-    {
-        delivery.setStatus(delivering);
-        deliveryRepository.save(delivery);
-    }
 }
